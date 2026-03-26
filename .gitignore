@@ -1,0 +1,25 @@
+# dependencies
+node_modules
+
+# env files (CRITICAL)
+.env
+.env.local
+.env.*.local
+
+# build outputs
+dist
+build
+.vite
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode
+.idea
