@@ -4,9 +4,9 @@ import { createTransaction } from "../controllers/transaction.controller.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send("transactions route working");
-});
+// router.get("/", (req, res) => {
+//   res.send("transactions route working");
+// });
 
 router.post("/", authMiddleware, createTransaction)
 
