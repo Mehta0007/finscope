@@ -1,18 +1,20 @@
-
+import { addTransaction } from "../services/transaction.service.js";
 
 
 export const createTransaction = (req, res) => {
-    console.log("👉 CONTROLLER HIT");
   const userId = req.user.sub;
-  console.log("USER ID:", userId);
+
   const { amount, category, description, date } = req.body;
-console.log("BODY:", req.body);
-  res.json({
+
+const newTransaction = addTransaction({
     message: "data received",
     userId,
     amount,
     category,
     description,
     date,
-  });
+  })
+
+  res.status(201).json(newTransaction)
+  
 };
