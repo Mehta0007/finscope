@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { createTransaction } from "../controllers/transaction.controller.js";
+import { createTransaction, getTransactions } from "../controllers/transaction.controller.js";
 
 const router = express.Router();
 
@@ -9,5 +9,6 @@ const router = express.Router();
 // });
 
 router.post("/", authMiddleware, createTransaction)
+router.get("/", authMiddleware, getTransactions)
 
 export default router;
