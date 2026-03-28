@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { createTransaction, getTransactions } from "../controllers/transaction.controller.js";
+import { createTransaction, deleteTransaction, getTransactions } from "../controllers/transaction.controller.js";
 import { validateTransaction } from "../middlewares/transaction.middleware.js";
 
 const router = express.Router();
@@ -11,5 +11,6 @@ const router = express.Router();
 
 router.post("/", authMiddleware,validateTransaction ,createTransaction)
 router.get("/", authMiddleware, getTransactions)
+router.delete("/:id", authMiddleware, deleteTransaction);
 
 export default router;

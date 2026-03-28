@@ -29,4 +29,17 @@ export const getTransactionsByUser = async (userId) => {
   return result.rows;
 };
 
+//DELETE
 
+
+export const deleteTransactionById = async (id, userId) => {
+  const query = `
+    DELETE FROM transactions
+    WHERE id = $1 AND user_id = $2
+    RETURNING *;
+  `;
+
+  const result = await pool.query(query, [id, userId]);
+
+  return result.rows[0];
+};
