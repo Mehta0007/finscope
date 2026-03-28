@@ -1,28 +1,32 @@
 import { addTransaction, getTransactionsByUser } from "../services/transaction.service.js";
 
+export const createTransaction = async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { amount, category, description, date, type } = req.body;
 
-export const createTransaction = (req, res) => {
-  const userId = req.user.sub;
+    const newTransaction = await addTransaction(userId, {
+      amount,
+      category,
+      description,
+      date,
+      type
+    });
 
-  const { amount, category, description, date } = req.body;
-
-const newTransaction = addTransaction({
-    userId,
-    amount,
-    category,
-    description,
-    date,
-  })
-
-  res.status(201).json(newTransaction)
-  
+    res.status(201).json(newTransaction);
+  } catch (error) {
+    console.log("❌ ERROR:", error);
+    res.status(500).json({ message: "Failed to create transaction" });
+  }
 };
 
-
-export const getTransactions = (req, res) => {
-    const userId= req.user.sub
-
-    const userTransactions = getTransactionsByUser(userId)
-
+export const getTransactions = async (req, res) => {
+  try {
+    const userId = req.user.sub
+    const userTransactions = await getTransactionsByUser(userId)
     res.status(200).json(userTransactions)
+  } catch (error) {
+    console.log("❌ ERROR:", error)
+    res.status(500).json({ message: "Failed to fetch transactions" })
+  }
 }

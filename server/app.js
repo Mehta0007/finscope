@@ -11,8 +11,9 @@ app.use(express.json());
 app.use("/transactions", transactionRoutes);
 
 app.get("/", (req, res) => {
-  res.send("API is running");
+    res.send("API is running");
 });
+
 
 app.get("/protected", authMiddleware, (req, res) => {
     res.json({
