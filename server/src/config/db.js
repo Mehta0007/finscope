@@ -12,6 +12,3 @@ export  const pool = new Pool({
     ssl: {rejectUnauthorized: false}
 })
 
-pool.query('SELECT 1')
-  .then(() => console.log('✅ Database connected successfully'))
-  .catch((err) => console.log('❌ Database connection failed:', err.message))
