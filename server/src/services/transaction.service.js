@@ -3,7 +3,9 @@ import {pool} from "../config/db.js"
 
 //CREATE
 export const addTransaction = async(userId, data) => {
+   
     const { amount, type, category, description, date } = data 
+   
  const result = await pool.query(
     `INSERT INTO transactions (user_id, amount, type, category, description, date )
     VALUES ($1, $2, $3, $4, $5, $6)

@@ -1,21 +1,24 @@
+import type { TransactionInput } from "@/types/transaction.types";
 
-const API_URL = "http://localhost:5000/transactions"
+const API_URL = "http://localhost:5000/transactions";
 
-export const getTransactions = async (getToken: () => Promise<string | null>) => {
-  const token = await getToken()
 
+
+export const getTransaction = async (token: string) => {
   const res = await fetch(API_URL, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
-  return res.json()
-}
+  if (!res.ok) {
+    throw new Error("Failed to fetch transactions");
+  }
+  return res.json();
+};
 
-export const createTransaction = async (getToken: () => Promise<string | null>, data: any) => {
-  const token = await getToken()
-
+export const createTransaction = async (token: string, data: TransactionInput) => {
+  console.log("🚀 CALLING CREATE TRANSACTION API");
   const res = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -23,27 +26,31 @@ export const createTransaction = async (getToken: () => Promise<string | null>, 
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
+  });
+  if (!res.ok) {
+    throw new Error(" Failed  to update transaction");
+  }
+  return res.json();
+};
 
-  return res.json()
-}
-
-export const deleteTransaction = async (getToken: () => Promise<string | null>, id: string) => {
-  const token = await getToken()
-
+export const deleteTransaction = async (token: string, id: string) => {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
+  if (!res.ok) {
+    throw new Error(" Failed  to delete transaction");
+  }
+  return res.json();
+};
 
-  return res.json()
-}
-
-export const updateTransaction = async (getToken: () => Promise<string | null>, id: string, data: any) => {
-  const token = await getToken()
-
+export const updateTransaction = async (
+  token: string,
+  id: string,
+  data: TransactionInput,
+) => {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: {
@@ -51,10 +58,11 @@ export const updateTransaction = async (getToken: () => Promise<string | null>, 
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
+  });
 
-  return res.json()
-}
+  if (!res.ok) {
+    throw new Error("Failed to update transaction");
+  }
 
-
-
+  return res.json();
+};

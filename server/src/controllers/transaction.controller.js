@@ -5,7 +5,9 @@ import { updateTransactionById } from "../services/transaction.service.js";
 //CREATE
 export const createTransaction = async (req, res) => {
   try {
+    
     const userId = req.user.sub;
+   
     const { amount, category, description, date, type } = req.body;
 
     const newTransaction = await addTransaction(userId, {
@@ -25,7 +27,7 @@ export const createTransaction = async (req, res) => {
 
 export const getTransactions = async (req, res) => {
   try {
-    const userId = req.user.sub
+  const userId = req.user.sub;
     const userTransactions = await getTransactionsByUser(userId)
     res.status(200).json(userTransactions)
   } catch (error) {
@@ -60,7 +62,7 @@ export const deleteTransaction = async (req, res) => {
 //UPDATE
 export const updateTransaction = async (req, res) => {
   try {
-    const userId = req.user.sub
+   const userId = req.user.sub;
     const { id } = req.params
     const data = req.body
 

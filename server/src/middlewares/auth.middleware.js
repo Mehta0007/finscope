@@ -1,9 +1,16 @@
 import { verifyToken } from "@clerk/clerk-sdk-node";
 
 export const authMiddleware = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
 
+  try {
+
+ if (req.method === "OPTIONS") {
+      return next();
+    }
+
+
+    const authHeader = req.headers.authorization
+    console.log("HEADERS:", req.headers);
     if (!authHeader) {
       console.log("❌ NO TOKEN");
 
