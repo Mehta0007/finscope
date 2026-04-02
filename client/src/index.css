@@ -1,1 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
+
+:root {
+  --font-ui: "Manrope", sans-serif;
+  --font-display: "Instrument Serif", serif;
+}
+
+html {
+  background: #0a0a0a;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #0a0a0a;
+  color: #ffffff;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input[type="date"] {
+  color-scheme: dark;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.font-ui {
+  font-family: var(--font-ui);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
