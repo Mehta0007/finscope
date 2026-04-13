@@ -1,24 +1,25 @@
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { useImportTransactions } from "@/hooks/useImportTransactions";
+import { useToast } from "@/components/ui/Toast";
 import { parseCSVToTransactions } from "@/lib/transactions";
 import type { TransactionInput } from "@/types/transaction.types";
 
 // A small state machine drives this component:
 //   idle → (user picks file) → preview → (user confirms) → idle
 //                                      → (user cancels)  → idle
+// If the file has zero valid rows, we skip preview entirely and fire an error toast.
 type State =
   | { phase: "idle" }
-  | { phase: "preview"; valid: TransactionInput[]; errors: string[] }
+  | { phase: "preview"; valid: TransactionInput[]; skipped: number }
   | { phase: "importing" };
 
 export const ImportCSVButton = () => {
-  // A ref to the hidden <input type="file"> — we click it programmatically
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate, isPending } = useImportTransactions();
+  const toast = useToast();
   const [state, setState] = useState<State>({ phase: "idle" });
 
-  // Step 1: User picks a file. FileReader reads it as plain text, then we parse it.
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -27,19 +28,24 @@ export const ImportCSVButton = () => {
     reader.onload = (event) => {
       const text = event.target?.result;
       if (typeof text !== "string") return;
-      const { valid, errors } = parseCSVToTransactions(text);
-      setState({ phase: "preview", valid, errors });
-    };
-    // Tells the browser to read the file and call onload when done.
-    reader.readAsText(file);
 
-    // Reset so the same file can be re-imported if needed
+      const { valid, errors } = parseCSVToTransactions(text);
+
+      // Nothing importable — show the first error as a toast and stay idle
+      // so the header doesn't get cluttered with a useless "No valid rows found"
+      if (valid.length === 0) {
+        toast.error(errors[0] ?? "No valid rows found in this file.");
+        return;
+      }
+
+      setState({ phase: "preview", valid, skipped: errors.length });
+    };
+    reader.readAsText(file);
     e.target.value = "";
   };
 
-  // Step 2: User confirms — run the batch import mutation
   const handleConfirm = () => {
-    if (state.phase !== "preview" || !state.valid.length) return;
+    if (state.phase !== "preview") return;
     setState({ phase: "importing" });
     mutate(state.valid, {
       onSuccess: () => setState({ phase: "idle" }),
@@ -50,29 +56,17 @@ export const ImportCSVButton = () => {
   if (state.phase === "preview") {
     return (
       <div className="flex items-center gap-2">
-        {state.errors.length > 0 && (
-          <span className="app-text-subtle text-xs">
-            {state.errors.length} row{state.errors.length > 1 ? "s" : ""} skipped
-          </span>
-        )}
-
-        {state.valid.length > 0 ? (
-          <>
-            <span className="app-text-subtle text-xs">
-              {state.valid.length} row{state.valid.length > 1 ? "s" : ""} ready
-            </span>
-            <button
-              type="button"
-              onClick={handleConfirm}
-              className="app-button-secondary rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90"
-            >
-              Confirm import
-            </button>
-          </>
-        ) : (
-          <span className="app-text-subtle text-xs">No valid rows found</span>
-        )}
-
+        <span className="app-text-subtle text-xs">
+          {state.valid.length} ready
+          {state.skipped > 0 && `, ${state.skipped} skipped`}
+        </span>
+        <button
+          type="button"
+          onClick={handleConfirm}
+          className="app-button-secondary rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90"
+        >
+          Confirm
+        </button>
         <button
           type="button"
           onClick={() => setState({ phase: "idle" })}
@@ -86,7 +80,6 @@ export const ImportCSVButton = () => {
 
   return (
     <>
-      {/* Hidden file input — only .csv files are accepted */}
       <input
         ref={fileInputRef}
         type="file"
@@ -94,7 +87,6 @@ export const ImportCSVButton = () => {
         onChange={handleFileChange}
         className="hidden"
       />
-
       <button
         type="button"
         disabled={isPending || state.phase === "importing"}
