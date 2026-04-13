@@ -175,9 +175,78 @@ const parseCSVLine = (line: string): string[] => {
   return values;
 };
 
-// Parses CSV text (exported by this app or matching the same column order)
-// into valid TransactionInput objects, plus a list of human-readable error strings.
-// Expected columns: Date, Type, Category, Description, Amount
+// Maps every recognised column name variation to a canonical field name.
+// We normalise headers to lowercase + no spaces before looking them up here,
+// so "Amount (INR)", "amount_inr", and "AMT" all resolve to "amount".
+const HEADER_ALIASES: Record<string, "date" | "type" | "category" | "description" | "amount"> = {
+  // date
+  date: "date",
+  transactiondate: "date",
+  txdate: "date",
+  // type
+  type: "type",
+  transactiontype: "type",
+  kind: "type",
+  txtype: "type",
+  // category
+  category: "category",
+  cat: "category",
+  // description
+  description: "description",
+  desc: "description",
+  note: "description",
+  notes: "description",
+  memo: "description",
+  details: "description",
+  // amount
+  amount: "amount",
+  amt: "amount",
+  amountinr: "amount",
+  value: "amount",
+  price: "amount",
+  total: "amount",
+};
+
+type ColumnMap = {
+  date: number;
+  type: number;
+  category: number;
+  description: number;   // -1 means column is absent (it's optional)
+  amount: number;
+};
+
+// Reads the header row and returns the index of each required column.
+// Throws a descriptive error string if a required column is missing.
+const resolveColumns = (headerLine: string): ColumnMap | string => {
+  const headers = parseCSVLine(headerLine);
+  const map: Partial<ColumnMap> = { description: -1 };
+
+  headers.forEach((raw, index) => {
+    // Normalise: lowercase, strip spaces, underscores, hyphens, and parenthetical suffixes
+    // e.g. "Amount (INR)" → "amountinr", "transaction_type" → "transactiontype"
+    const normalised = raw
+      .toLowerCase()
+      .replace(/[\s_\-()]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+
+    const field = HEADER_ALIASES[normalised];
+    if (field) map[field] = index;
+  });
+
+  const required = ["date", "type", "category", "amount"] as const;
+  const missing = required.filter((f) => map[f] === undefined);
+
+  if (missing.length > 0) {
+    return `Header row is missing required column(s): ${missing.join(", ")}. Found: ${headers.join(", ")}`;
+  }
+
+  return map as ColumnMap;
+};
+
+// Parses CSV text into valid TransactionInput objects, plus human-readable errors.
+// Column order does not matter — the header row is read first and columns are
+// resolved by name, accepting common aliases (see HEADER_ALIASES above).
+// Required columns: date, type, category, amount.  description is optional.
 export const parseCSVToTransactions = (
   csvText: string,
 ): { valid: TransactionInput[]; errors: string[] } => {
@@ -187,42 +256,53 @@ export const parseCSVToTransactions = (
     return { valid: [], errors: ["File is empty or has no data rows."] };
   }
 
-  // Skip the header row (index 0)
+  // Resolve column positions from the header row
+  const columnMap = resolveColumns(lines[0]);
+  if (typeof columnMap === "string") {
+    return { valid: [], errors: [columnMap] };
+  }
+
   const dataLines = lines.slice(1);
   const valid: TransactionInput[] = [];
   const errors: string[] = [];
 
   for (let i = 0; i < dataLines.length; i++) {
     const line = dataLines[i].trim();
-    if (!line) continue; // skip blank lines
+    if (!line) continue;
 
     const values = parseCSVLine(line);
+    const rowNum = i + 2; // +2 because header is row 1
 
-    if (values.length < 5) {
-      errors.push(`Row ${i + 2}: needs 5 columns (Date, Type, Category, Description, Amount).`);
-      continue;
-    }
-
-    const [date, type, category, description, amountStr] = values;
+    const date = values[columnMap.date] ?? "";
+    const type = (values[columnMap.type] ?? "").toLowerCase().trim();
+    const category = values[columnMap.category] ?? "";
+    const description = columnMap.description >= 0 ? (values[columnMap.description] ?? "") : "";
+    const amountStr = values[columnMap.amount] ?? "";
 
     if (type !== "income" && type !== "expense") {
-      errors.push(`Row ${i + 2}: type must be "income" or "expense", got "${type}".`);
+      errors.push(`Row ${rowNum}: type must be "income" or "expense", got "${type}".`);
       continue;
     }
 
-    const amount = parseFloat(amountStr);
+    // Strip currency symbols (₹, $, £, etc.) and commas before parsing
+    const amount = parseFloat(amountStr.replace(/[^0-9.]/g, ""));
     if (isNaN(amount) || amount <= 0) {
-      errors.push(`Row ${i + 2}: invalid amount "${amountStr}".`);
+      errors.push(`Row ${rowNum}: invalid amount "${amountStr}".`);
       continue;
     }
 
     const parsedDate = new Date(date);
     if (isNaN(parsedDate.getTime())) {
-      errors.push(`Row ${i + 2}: invalid date "${date}".`);
+      errors.push(`Row ${rowNum}: invalid date "${date}".`);
       continue;
     }
 
-    valid.push({ date, type, category, description: description ?? "", amount });
+    if (!category.trim()) {
+      errors.push(`Row ${rowNum}: category is empty.`);
+      continue;
+    }
+
+    valid.push({ date, type, category, description, amount });
   }
 
   return { valid, errors };
