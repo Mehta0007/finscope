@@ -8,18 +8,53 @@ import {
 import type { Transaction, TransactionInput } from "@/types/transaction.types";
 import { TransactionItem } from "./TransactionItem";
 
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+// Mimics the real item layout so the page doesn't shift when data loads.
+
+const SkeletonItem = () => (
+  <div className="flex items-center justify-between px-4 py-4 sm:px-5 sm:py-5">
+    <div className="flex flex-col gap-2.5">
+      <div className="skeleton h-3.5 w-28" />
+      <div className="skeleton h-3 w-20" />
+      <div className="skeleton h-2.5 w-16" />
+    </div>
+    <div className="skeleton h-4 w-16" />
+  </div>
+);
+
+const SkeletonGroup = () => (
+  <div className="app-surface-soft overflow-hidden rounded-2xl border">
+    <div className="app-border border-b px-4 py-3 sm:px-5">
+      <div className="skeleton h-2.5 w-20" />
+    </div>
+    <div className="app-border divide-y">
+      <SkeletonItem />
+      <SkeletonItem />
+    </div>
+  </div>
+);
+
+const TransactionListSkeleton = () => (
+  <div className="space-y-4">
+    <div className="app-text-faint flex items-center justify-between text-xs uppercase tracking-[0.18em]">
+      <span>History</span>
+      <div className="skeleton h-2.5 w-14" />
+    </div>
+    <div className="space-y-4">
+      <SkeletonGroup />
+      <SkeletonGroup />
+    </div>
+  </div>
+);
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export const TransactionList = () => {
   const { transactions, isLoading, error } = useTransactions();
   const deleteTransaction = useDeleteTransaction();
   const updateTransaction = useUpdateTransaction();
 
-  if (isLoading) {
-    return (
-      <div className="app-surface-soft rounded-2xl border px-4 py-8 text-center">
-        <p className="app-text-subtle text-sm">Loading transactions...</p>
-      </div>
-    );
-  }
+  if (isLoading) return <TransactionListSkeleton />;
 
   if (error) {
     return (

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Upload } from "lucide-react";
 import { useImportTransactions } from "@/hooks/useImportTransactions";
 import { parseCSVToTransactions } from "@/lib/transactions";
 import type { TransactionInput } from "@/types/transaction.types";
@@ -98,9 +99,12 @@ export const ImportCSVButton = () => {
         type="button"
         disabled={isPending || state.phase === "importing"}
         onClick={() => fileInputRef.current?.click()}
-        className="app-button-secondary rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90 disabled:opacity-40"
+        className="app-button-secondary inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90 disabled:opacity-40"
       >
-        {state.phase === "importing" ? "Importing..." : "Import CSV"}
+        <Upload className="h-3.5 w-3.5 flex-shrink-0" />
+        <span className="hidden sm:inline">
+          {state.phase === "importing" ? "Importing..." : "Import CSV"}
+        </span>
       </button>
     </>
   );

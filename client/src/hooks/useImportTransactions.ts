@@ -1,17 +1,13 @@
 import { createTransaction } from "@/api/transaction.api";
+import { useToast } from "@/components/ui/Toast";
 import type { TransactionInput } from "@/types/transaction.types";
 import { useAuth } from "@clerk/clerk-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-// Accepts an array of TransactionInput objects and creates each one on the server
-// sequentially (one after another), then refreshes the transaction list.
-//
-// Why sequential and not parallel (Promise.all)?
-// Most free-tier DB hosts have low connection limits. Sequential calls are safer
-// and still fast enough for typical import sizes (< 500 rows).
 export const useImportTransactions = () => {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   return useMutation({
     mutationFn: async (transactions: TransactionInput[]) => {
@@ -23,9 +19,12 @@ export const useImportTransactions = () => {
       }
       return results;
     },
-    onSuccess: () => {
-      // Tell TanStack Query that the "transactions" cache is stale so it refetches.
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast.success(`${data.length} transaction${data.length > 1 ? "s" : ""} imported.`);
+    },
+    onError: () => {
+      toast.error("Import failed. Some transactions may not have been saved.");
     },
   });
 };
