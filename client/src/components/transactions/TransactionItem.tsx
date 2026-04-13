@@ -1,4 +1,4 @@
-import { formatCurrencyINR } from "@/lib/transactions";
+﻿import { formatCurrencyINR } from "@/lib/transactions";
 import type { TransactionInput } from "@/types/transaction.types";
 import type { Transaction } from "@/types/transaction.types";
 import { useState } from "react";
@@ -20,6 +20,7 @@ export const TransactionItem = ({
 }: TransactionItemProps) => {
   const { id, amount, type, category, description, date } = transaction;
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [draft, setDraft] = useState<TransactionInput>({
     amount,
     type,
@@ -42,7 +43,7 @@ export const TransactionItem = ({
   };
 
   const inputClass =
-    "w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none transition focus:border-white/20";
+    "app-input w-full rounded-xl border px-3 py-2 text-sm outline-none transition focus:opacity-95";
 
   if (isEditing) {
     return (
@@ -134,14 +135,14 @@ export const TransactionItem = ({
     <div className="flex flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium capitalize text-white">
+          <span className="text-sm font-medium capitalize">
             {category}
           </span>
           <span
             className={`rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
               isIncome
                 ? "bg-white/10 text-white/72"
-                : "bg-white/6 text-white/46"
+                : "app-surface-muted app-text-subtle"
             }`}
           >
             {type}
@@ -149,12 +150,12 @@ export const TransactionItem = ({
         </div>
 
         {description ? (
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/42">
+          <p className="app-text-subtle mt-2 line-clamp-2 text-sm leading-6">
             {description}
           </p>
         ) : null}
 
-        <p className="mt-2 text-xs uppercase tracking-[0.14em] text-white/26">
+        <p className="app-text-faint mt-2 text-xs uppercase tracking-[0.14em]">
           {formattedDate}
         </p>
       </div>
@@ -162,7 +163,7 @@ export const TransactionItem = ({
       <div className="flex items-center justify-between gap-4 md:justify-end">
         <span
           className={`text-base font-medium tracking-tight sm:text-lg ${
-            isIncome ? "text-white" : "text-white/78"
+            isIncome ? "" : "app-text-muted"
           }`}
         >
           {isIncome ? "+" : "-"}
@@ -170,19 +171,42 @@ export const TransactionItem = ({
         </span>
 
         <button
-          onClick={() => onDelete(id)}
+          onClick={() => {
+            if (confirmDelete) {
+              onDelete(id);
+              return;
+            }
+
+            setConfirmDelete(true);
+          }}
           disabled={isDeleting}
-          className="rounded-full border border-white/8 px-3 py-1.5 text-xs font-medium text-white/34 transition hover:border-white/16 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="app-button-secondary rounded-full border px-3 py-1.5 text-xs font-medium transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {isDeleting ? "Deleting..." : "Delete"}
+          {isDeleting
+            ? "Deleting..."
+            : confirmDelete
+              ? "Confirm?"
+              : "Delete"}
         </button>
         <button
-          onClick={() => setIsEditing(true)}
-          className="rounded-full border border-white/8 px-3 py-1.5 text-xs font-medium text-white/34 transition hover:border-white/16 hover:text-white"
+          onClick={() => {
+            setConfirmDelete(false);
+            setIsEditing(true);
+          }}
+          className="app-button-secondary rounded-full border px-3 py-1.5 text-xs font-medium transition hover:opacity-90"
         >
           Edit
         </button>
+        {confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(false)}
+            className="app-button-secondary rounded-full border px-3 py-1.5 text-xs font-medium transition hover:opacity-90"
+          >
+            Cancel
+          </button>
+        ) : null}
       </div>
     </div>
   );
 };
+

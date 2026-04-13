@@ -29,9 +29,9 @@ export const TransactionForm = () => {
   };
 
   const baseInputClass =
-    "w-full rounded-2xl border border-white/10 bg-[#0c0c0d] px-4 py-3 text-sm text-white placeholder:text-white/28 outline-none transition focus:border-white/22";
+    "app-input w-full rounded-2xl border px-4 py-3 text-sm placeholder:text-[var(--text-faint)] outline-none transition focus:opacity-95";
   const labelClass =
-    "text-[10px] uppercase tracking-[0.18em] text-white/34";
+    "app-text-faint text-[10px] uppercase tracking-[0.18em]";
 
   return (
     <form
@@ -40,26 +40,26 @@ export const TransactionForm = () => {
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">
+          <p className="app-text-faint text-[10px] uppercase tracking-[0.22em]">
             Transaction
           </p>
-          <h3 className="mt-2 text-lg font-medium tracking-tight text-white">
+          <h3 className="mt-2 text-lg font-medium tracking-tight">
             Add a new entry
           </h3>
-          <p className="mt-2 text-sm leading-6 text-white/42">
+          <p className="app-text-subtle mt-2 text-sm leading-6">
             Keep your records current with one clean daily log.
           </p>
         </div>
 
-        <div className="rounded-full border border-white/8 bg-[#0c0c0d] p-1">
+        <div className="app-surface-soft rounded-full border p-1">
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => setForm({ ...form, type: "expense" })}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 form.type === "expense"
-                  ? "bg-white text-black"
-                  : "text-white/45 hover:text-white"
+                  ? "app-button-primary"
+                  : "app-text-subtle hover:opacity-90"
               }`}
             >
               Expense
@@ -69,8 +69,8 @@ export const TransactionForm = () => {
               onClick={() => setForm({ ...form, type: "income" })}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 form.type === "income"
-                  ? "bg-white text-black"
-                  : "text-white/45 hover:text-white"
+                  ? "app-button-primary"
+                  : "app-text-subtle hover:opacity-90"
               }`}
             >
               Income
@@ -128,7 +128,7 @@ export const TransactionForm = () => {
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                   form.category === suggestion
                     ? "border-white bg-white text-black"
-                    : "border-white/8 text-white/45 hover:border-white/16 hover:text-white"
+                    : "app-button-secondary"
                 }`}
               >
                 {suggestion}
@@ -154,7 +154,7 @@ export const TransactionForm = () => {
       <button
         type="submit"
         disabled={isPending || !form.amount || !form.category || !form.date}
-        className="mt-1 inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+        className="app-button-primary mt-1 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-medium transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {isPending ? "Adding transaction..." : "Add transaction"}
       </button>

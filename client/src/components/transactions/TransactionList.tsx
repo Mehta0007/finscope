@@ -15,25 +15,25 @@ export const TransactionList = () => {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-white/8 bg-[#0c0c0d] px-4 py-8 text-center">
-        <p className="text-sm text-white/42">Loading transactions...</p>
+      <div className="app-surface-soft rounded-2xl border px-4 py-8 text-center">
+        <p className="app-text-subtle text-sm">Loading transactions...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-white/8 bg-[#0c0c0d] px-4 py-8 text-center">
-        <p className="text-sm text-white/42">Unable to load transactions.</p>
+      <div className="app-surface-soft rounded-2xl border px-4 py-8 text-center">
+        <p className="app-text-subtle text-sm">Unable to load transactions.</p>
       </div>
     );
   }
 
   if (!transactions || transactions.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-[#0c0c0d] px-5 py-10 text-center">
-        <p className="text-sm font-medium text-white/72">No transactions yet</p>
-        <p className="mt-2 text-sm leading-6 text-white/40">
+      <div className="app-surface-soft rounded-2xl border border-dashed px-5 py-10 text-center">
+        <p className="app-text-muted text-sm font-medium">No transactions yet</p>
+        <p className="app-text-subtle mt-2 text-sm leading-6">
           Add your first income or expense to start building your overview.
         </p>
       </div>
@@ -57,7 +57,7 @@ export const TransactionList = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-white/28">
+      <div className="app-text-faint flex items-center justify-between text-xs uppercase tracking-[0.18em]">
         <span>History</span>
         <span>{transactions.length} entries</span>
       </div>
@@ -66,15 +66,15 @@ export const TransactionList = () => {
         {groupedTransactions.map((group) => (
           <section
             key={group.label}
-            className="overflow-hidden rounded-2xl border border-white/8 bg-[#0c0c0d]"
+            className="app-surface-soft overflow-hidden rounded-2xl border"
           >
-            <div className="border-b border-white/8 px-4 py-3 sm:px-5">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/34">
+            <div className="app-border border-b px-4 py-3 sm:px-5">
+              <p className="app-text-faint text-[11px] font-medium uppercase tracking-[0.18em]">
                 {group.label}
               </p>
             </div>
 
-            <div className="divide-y divide-white/8">
+            <div className="app-border divide-y">
               {group.items.map((transaction) => (
                 <TransactionItem
                   key={transaction.id}

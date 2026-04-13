@@ -13,9 +13,13 @@ export const sortTransactionsByDate = (transactions: Transaction[]) =>
   );
 
 export const getTransactionSummary = (transactions: Transaction[]) => {
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
+  const sortedTransactions = sortTransactionsByDate(transactions);
+  const referenceDate =
+    sortedTransactions.length > 0
+      ? new Date(sortedTransactions[0].date)
+      : new Date();
+  const currentMonth = referenceDate.getMonth();
+  const currentYear = referenceDate.getFullYear();
 
   let totalIncome = 0;
   let totalExpenses = 0;
@@ -45,6 +49,10 @@ export const getTransactionSummary = (transactions: Transaction[]) => {
     monthlyIncome,
     monthlyExpenses,
     monthlyBalance: monthlyIncome - monthlyExpenses,
+    referenceMonthLabel: referenceDate.toLocaleDateString("en-IN", {
+      month: "long",
+      year: "numeric",
+    }),
   };
 };
 
@@ -137,4 +145,34 @@ export const getMonthlyTrend = (
   }
 
   return buckets;
+};
+
+export const exportTransactionsToCSV = (transactions: Transaction[]) => {
+  const headers = ["Date", "Type", "Category", "Description", "Amount"];
+
+  const rows = transactions.map((transaction) => [
+    transaction.date,
+    transaction.type,
+    transaction.category,
+    transaction.description ?? "",
+    String(transaction.amount),
+  ]);
+
+  const csv = [headers, ...rows]
+    .map((row) =>
+      row
+        .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+        .join(","),
+    )
+    .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "finscope-transactions.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };

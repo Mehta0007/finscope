@@ -7,10 +7,13 @@
     "module": "ESNext",
     "types": ["vite/client"],
     "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
+
+    // ✅ CRITICAL FIX
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     },
+
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

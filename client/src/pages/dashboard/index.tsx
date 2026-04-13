@@ -5,29 +5,32 @@ import {
   UserButton,
 } from "@clerk/clerk-react";
 import { useUser } from "@clerk/clerk-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTransactions } from "@/hooks/useTransactions";
 import {
   getCategoryBreakdown,
+  exportTransactionsToCSV,
   formatCurrencyINR,
   getMonthlyTrend,
   getTransactionSummary,
   sortTransactionsByDate,
 } from "@/lib/transactions";
 import { TransactionList } from "@/components/transactions/TransactionList";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { TransactionForm } from "../../components/transactions/TransactionForm";
 
 export const Dashboard = () => {
   const { user } = useUser();
+  const [activeTrendMetric, setActiveTrendMetric] = useState<"income" | "expense">(
+    "income",
+  );
   const { transactions } = useTransactions();
   const summary = getTransactionSummary(transactions ?? []);
   const recentTransactions = sortTransactionsByDate(transactions ?? []).slice(0, 3);
   const categoryBreakdown = getCategoryBreakdown(transactions ?? []);
   const monthlyTrend = getMonthlyTrend(transactions ?? []);
-  const monthlyLabel = new Date().toLocaleDateString("en-IN", {
-    month: "long",
-    year: "numeric",
-  });
+  const monthlyLabel = summary.referenceMonthLabel;
   const monthlyTotal = summary.monthlyIncome + summary.monthlyExpenses;
   const incomeWidth =
     monthlyTotal === 0 ? 0 : (summary.monthlyIncome / monthlyTotal) * 100;
@@ -46,41 +49,51 @@ export const Dashboard = () => {
   return (
     <>
       <SignedIn>
-        <div className="min-h-screen bg-[#0a0a0a] text-white">
+        <div className="app-shell min-h-screen">
           <div className="mx-auto max-w-7xl px-5 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-            <header className="border-b border-white/8 pb-6 sm:pb-8">
+            <header className="app-border border-b pb-6 sm:pb-8">
               <div className="mb-6 flex items-center justify-between gap-4">
                 <Link
                   to="/"
-                  className="text-sm text-white/52 transition hover:text-white"
+                  className="app-text-subtle text-sm transition hover:opacity-90"
                 >
                   Back to home
                 </Link>
 
-                <div className="rounded-full border border-white/8 bg-[#111111] p-1">
-                  <UserButton
-                    userProfileMode="modal"
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        userButtonAvatarBox: "h-8 w-8",
-                      },
-                    }}
-                  />
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <button
+                    type="button"
+                    onClick={() => exportTransactionsToCSV(transactions ?? [])}
+                    className="app-button-secondary rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90"
+                  >
+                    Export CSV
+                  </button>
+                  <div className="app-surface rounded-full border p-1">
+                    <UserButton
+                      userProfileMode="modal"
+                      afterSignOutUrl="/"
+                      appearance={{
+                        elements: {
+                          userButtonAvatarBox: "h-8 w-8",
+                        },
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-white/30 sm:text-[11px] sm:tracking-[0.32em]">
+                  <p className="app-text-faint text-[10px] uppercase tracking-[0.28em] sm:text-[11px] sm:tracking-[0.32em]">
                     FinScope dashboard
                   </p>
 
-                  <h1 className="font-display mt-3 text-[2.6rem] leading-[0.95] tracking-[-0.03em] text-white sm:text-5xl lg:text-[4.3rem]">
+                  <h1 className="font-display app-animate-in mt-3 text-[2.6rem] leading-[0.95] tracking-[-0.03em] sm:text-5xl lg:text-[4.3rem]">
                     Welcome back, {user?.firstName || "there"}.
                   </h1>
 
-                  <p className="mt-3 max-w-xl text-sm leading-7 text-white/52 sm:text-base">
+                  <p className="app-text-subtle mt-3 max-w-xl text-sm leading-7 sm:text-base">
                     Track income and expenses with a cleaner overview of your
                     financial activity across every transaction you log.
                   </p>
@@ -90,12 +103,12 @@ export const Dashboard = () => {
                   {stats.map((stat) => (
                     <div
                       key={stat.label}
-                      className="rounded-2xl border border-white/8 bg-[#111111] px-4 py-4"
+                      className="app-surface app-hover-lift app-animate-in rounded-2xl border px-4 py-4"
                     >
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-white/30">
+                      <p className="app-text-faint text-[11px] uppercase tracking-[0.18em]">
                         {stat.label}
                       </p>
-                      <p className="mt-2 text-2xl font-medium tracking-[-0.04em] text-white">
+                      <p className="mt-2 text-2xl font-medium tracking-[-0.04em]">
                         {stat.value}
                       </p>
                     </div>
@@ -106,15 +119,15 @@ export const Dashboard = () => {
 
             <main className="grid gap-8 py-8 lg:grid-cols-[420px_minmax(0,1fr)] lg:gap-10 lg:py-10">
               <section>
-                <div className="rounded-[24px] border border-white/8 bg-[#111111] p-5 sm:p-6">
+                <div className="app-surface app-animate-in rounded-[24px] border p-5 sm:p-6">
                   <div className="mb-5">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/30 sm:text-[11px]">
+                    <p className="app-text-faint text-[10px] uppercase tracking-[0.22em] sm:text-[11px]">
                       Add transaction
                     </p>
-                    <h2 className="mt-2 text-xl font-medium tracking-tight text-white sm:text-2xl">
+                    <h2 className="mt-2 text-xl font-medium tracking-tight sm:text-2xl">
                       New entry
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-white/48">
+                    <p className="app-text-subtle mt-2 text-sm leading-6">
                       Log an income or expense in a few seconds.
                     </p>
                   </div>
@@ -122,71 +135,71 @@ export const Dashboard = () => {
                   <TransactionForm />
                 </div>
 
-                <div className="mt-6 rounded-[24px] border border-white/8 bg-[#111111] p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-4 border-b border-white/8 pb-4">
+                <div className="app-surface app-hover-lift app-animate-in mt-6 rounded-[24px] border p-5 sm:p-6">
+                  <div className="app-border flex items-start justify-between gap-4 border-b pb-4">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/30 sm:text-[11px]">
+                      <p className="app-text-faint text-[10px] uppercase tracking-[0.22em] sm:text-[11px]">
                         Overview
                       </p>
-                      <h2 className="mt-2 text-xl font-medium tracking-tight text-white sm:text-2xl">
-                        This month
+                      <h2 className="mt-2 text-xl font-medium tracking-tight sm:text-2xl">
+                        Active month
                       </h2>
                     </div>
-                    <span className="text-sm text-white/38">{monthlyLabel}</span>
+                    <span className="app-text-subtle text-sm">{monthlyLabel}</span>
                   </div>
 
                   <div className="pt-5">
-                    <p className="text-sm text-white/36">Monthly net</p>
-                    <p className="mt-2 text-[38px] font-medium tracking-[-0.05em] text-white sm:text-5xl">
+                    <p className="app-text-subtle text-sm">Monthly net</p>
+                    <p className="mt-2 text-[38px] font-medium tracking-[-0.05em] sm:text-5xl">
                       {formatCurrencyINR(summary.monthlyBalance)}
                     </p>
                   </div>
 
                   <div className="mt-6 grid gap-4">
                     <div>
-                      <div className="mb-2 flex items-center justify-between text-sm text-white/44">
+                      <div className="app-text-subtle mb-2 flex items-center justify-between text-sm">
                         <span>Income</span>
                         <span>{formatCurrencyINR(summary.monthlyIncome)}</span>
                       </div>
-                      <div className="h-[4px] rounded-full bg-white/8">
+                      <div className="h-[4px] rounded-full bg-[var(--bar-track)]">
                         <div
-                          className="h-[4px] rounded-full bg-white"
+                          className="h-[4px] rounded-full bg-[var(--bar-primary)]"
                           style={{ width: `${incomeWidth}%` }}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <div className="mb-2 flex items-center justify-between text-sm text-white/44">
+                      <div className="app-text-subtle mb-2 flex items-center justify-between text-sm">
                         <span>Expenses</span>
                         <span>{formatCurrencyINR(summary.monthlyExpenses)}</span>
                       </div>
-                      <div className="h-[4px] rounded-full bg-white/8">
+                      <div className="h-[4px] rounded-full bg-[var(--bar-track)]">
                         <div
-                          className="h-[4px] rounded-full bg-white/50"
+                          className="h-[4px] rounded-full bg-[var(--bar-secondary)]"
                           style={{ width: `${expenseWidth}%` }}
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 border-t border-white/8 pt-5">
+                  <div className="app-border mt-6 border-t pt-5">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-white/36">Transactions logged</span>
-                      <span className="text-white/78">{transactions?.length ?? 0}</span>
+                      <span className="app-text-subtle">Transactions logged</span>
+                      <span>{transactions?.length ?? 0}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-[24px] border border-white/8 bg-[#111111] p-5 sm:p-6">
-                  <div className="mb-5 border-b border-white/8 pb-4">
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/30 sm:text-[11px]">
+                <div className="app-surface app-hover-lift app-animate-in mt-6 rounded-[24px] border p-5 sm:p-6">
+                  <div className="app-border mb-5 border-b pb-4">
+                    <p className="app-text-faint text-[10px] uppercase tracking-[0.22em] sm:text-[11px]">
                       Analytics
                     </p>
-                    <h2 className="mt-2 text-xl font-medium tracking-tight text-white sm:text-2xl">
+                    <h2 className="mt-2 text-xl font-medium tracking-tight sm:text-2xl">
                       Spending mix
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-white/42">
+                    <p className="app-text-subtle mt-2 text-sm leading-6">
                       Your top expense categories based on the transactions logged so far.
                     </p>
                   </div>
@@ -196,14 +209,14 @@ export const Dashboard = () => {
                       {categoryBreakdown.map((item) => (
                         <div key={item.category}>
                           <div className="mb-2 flex items-center justify-between text-sm">
-                            <span className="text-white/72">{item.category}</span>
-                            <span className="text-white/42">
+                            <span className="app-text-muted">{item.category}</span>
+                            <span className="app-text-subtle">
                               {formatCurrencyINR(item.amount)}
                             </span>
                           </div>
-                          <div className="h-[6px] rounded-full bg-white/8">
+                          <div className="h-[6px] rounded-full bg-[var(--bar-track)]">
                             <div
-                              className="h-[6px] rounded-full bg-white"
+                              className="h-[6px] rounded-full bg-[var(--bar-primary)]"
                               style={{ width: `${item.share}%` }}
                             />
                           </div>
@@ -211,7 +224,7 @@ export const Dashboard = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm leading-6 text-white/42">
+                    <p className="app-text-subtle text-sm leading-6">
                       Add a few expenses to unlock category insights.
                     </p>
                   )}
@@ -219,18 +232,18 @@ export const Dashboard = () => {
               </section>
 
               <section>
-                <div className="rounded-[24px] border border-white/8 bg-[#111111] p-5 sm:p-6">
-                  <div className="mb-5 flex flex-col gap-2 border-b border-white/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="app-surface app-animate-in rounded-[24px] border p-5 sm:p-6">
+                  <div className="app-border mb-5 flex flex-col gap-2 border-b pb-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-white/30 sm:text-[11px]">
+                      <p className="app-text-faint text-[10px] uppercase tracking-[0.22em] sm:text-[11px]">
                         Activity
                       </p>
-                      <h2 className="mt-2 text-xl font-medium tracking-tight text-white sm:text-2xl">
+                      <h2 className="mt-2 text-xl font-medium tracking-tight sm:text-2xl">
                         Recent transactions
                       </h2>
                     </div>
 
-                    <p className="text-sm text-white/38">
+                    <p className="app-text-subtle text-sm">
                       Grouped by day so your activity is easier to scan
                     </p>
                   </div>
@@ -240,21 +253,21 @@ export const Dashboard = () => {
                       {recentTransactions.map((transaction) => (
                         <div
                           key={transaction.id}
-                          className="rounded-2xl border border-white/8 bg-black/20 px-4 py-4"
+                          className="app-surface-muted app-hover-lift rounded-2xl border px-4 py-4"
                         >
-                          <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">
+                          <p className="app-text-faint text-[10px] uppercase tracking-[0.18em]">
                             {transaction.type}
                           </p>
-                          <p className="mt-2 text-sm font-medium capitalize text-white">
+                          <p className="mt-2 text-sm font-medium capitalize">
                             {transaction.category}
                           </p>
-                          <p className="mt-2 text-sm text-white/44">
+                          <p className="app-text-subtle mt-2 text-sm">
                             {new Date(transaction.date).toLocaleDateString("en-IN", {
                               day: "numeric",
                               month: "short",
                             })}
                           </p>
-                          <p className="mt-3 text-base font-medium text-white">
+                          <p className="mt-3 text-base font-medium">
                             {transaction.type === "income" ? "+" : "-"}
                             {formatCurrencyINR(transaction.amount).replace(
                               "\u20B9",
@@ -266,28 +279,58 @@ export const Dashboard = () => {
                     </div>
                   ) : null}
 
-                  <div className="mb-5 rounded-2xl border border-white/8 bg-black/20 p-4 sm:p-5">
+                  <div className="app-surface-muted app-hover-lift mb-5 rounded-2xl border p-4 sm:p-5">
                     <div className="mb-4 flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">
+                        <p className="app-text-faint text-[10px] uppercase tracking-[0.18em]">
                           Cash flow
                         </p>
-                        <p className="mt-2 text-sm text-white/70">
+                        <p className="app-text-muted mt-2 text-sm">
                           Last 6 months
                         </p>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-white/42">
-                        <span>Income</span>
-                        <span>Expense</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setActiveTrendMetric("income")}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                            activeTrendMetric === "income"
+                              ? "app-button-primary border-transparent"
+                              : "app-button-secondary hover:opacity-90"
+                          }`}
+                        >
+                          Income
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTrendMetric("expense")}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                            activeTrendMetric === "expense"
+                              ? "app-button-primary border-transparent"
+                              : "app-button-secondary hover:opacity-90"
+                          }`}
+                        >
+                          Expense
+                        </button>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-6 gap-3">
+                    <div className="-mx-1 overflow-x-auto pb-2">
+                      <div className="flex min-w-[420px] gap-3 px-1 sm:min-w-0 sm:grid sm:grid-cols-6">
                       {monthlyTrend.map((month) => (
-                        <div key={month.key} className="flex flex-col items-center gap-3">
-                          <div className="flex h-28 items-end gap-1">
+                        <div key={month.key} className="flex min-w-[56px] flex-col items-center gap-3">
+                          <div
+                            className="flex h-28 items-end gap-1"
+                            title={`${month.label}: Income ${formatCurrencyINR(
+                              month.income,
+                            )}, Expense ${formatCurrencyINR(month.expense)}`}
+                          >
                             <div
-                              className="w-3 rounded-full bg-white"
+                              className={`w-3 rounded-full transition ${
+                                activeTrendMetric === "income"
+                                  ? "bg-[var(--bar-primary)] opacity-100"
+                                  : "bg-[var(--bar-secondary)] opacity-50"
+                              }`}
                               style={{
                                 height: `${Math.max(
                                   10,
@@ -296,7 +339,11 @@ export const Dashboard = () => {
                               }}
                             />
                             <div
-                              className="w-3 rounded-full bg-white/35"
+                              className={`w-3 rounded-full transition ${
+                                activeTrendMetric === "expense"
+                                  ? "bg-[var(--bar-secondary)] opacity-100"
+                                  : "bg-[var(--bar-secondary)] opacity-50"
+                              }`}
                               style={{
                                 height: `${Math.max(
                                   10,
@@ -305,11 +352,23 @@ export const Dashboard = () => {
                               }}
                             />
                           </div>
-                          <span className="text-[11px] uppercase tracking-[0.14em] text-white/34">
+                          <span className="app-text-faint text-[11px] uppercase tracking-[0.14em]">
                             {month.label}
                           </span>
                         </div>
                       ))}
+                      </div>
+                    </div>
+
+                    <div className="app-surface-muted mt-4 rounded-xl border px-4 py-3">
+                      <p className="app-text-faint text-[10px] uppercase tracking-[0.18em]">
+                        Focus metric
+                      </p>
+                      <p className="app-text-muted mt-2 text-sm">
+                        {activeTrendMetric === "income"
+                          ? "Income bars are highlighted so you can compare earning momentum over time."
+                          : "Expense bars are highlighted so you can spot heavier spending months faster."}
+                      </p>
                     </div>
                   </div>
 
