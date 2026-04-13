@@ -237,7 +237,7 @@ const resolveColumns = (headerLine: string): ColumnMap | string => {
   const missing = required.filter((f) => map[f] === undefined);
 
   if (missing.length > 0) {
-    return `Header row is missing required column(s): ${missing.join(", ")}. Found: ${headers.join(", ")}`;
+    return `Missing required columns: ${missing.join(", ")}. Your file has: ${headers.slice(0, 4).join(", ")}${headers.length > 4 ? "…" : ""}`;
   }
 
   return map as ColumnMap;
