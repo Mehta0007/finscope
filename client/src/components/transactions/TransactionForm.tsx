@@ -38,19 +38,7 @@ export const TransactionForm = () => {
       onSubmit={handleSubmit}
       className="flex flex-col gap-5"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="app-text-faint text-[10px] uppercase tracking-[0.22em]">
-            Transaction
-          </p>
-          <h3 className="mt-2 text-lg font-medium tracking-tight">
-            Add a new entry
-          </h3>
-          <p className="app-text-subtle mt-2 text-sm leading-6">
-            Keep your records current with one clean daily log.
-          </p>
-        </div>
-
+      <div className="flex items-center justify-end">
         <div className="app-surface-soft rounded-full border p-1">
           <div className="flex items-center gap-1">
             <button
@@ -102,7 +90,7 @@ export const TransactionForm = () => {
             type="date"
             value={form.date}
             onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className={`${baseInputClass} mt-2 text-white/70`}
+            className={`${baseInputClass} mt-2`}
             required
           />
         </label>
@@ -127,7 +115,7 @@ export const TransactionForm = () => {
                 onClick={() => setForm({ ...form, category: suggestion })}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                   form.category === suggestion
-                    ? "border-white bg-white text-black"
+                    ? "app-button-primary border-transparent"
                     : "app-button-secondary"
                 }`}
               >

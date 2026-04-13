@@ -1,4 +1,4 @@
-import type { Transaction } from "@/types/transaction.types";
+import type { Transaction, TransactionInput } from "@/types/transaction.types";
 
 export const formatCurrencyINR = (amount: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -145,6 +145,87 @@ export const getMonthlyTrend = (
   }
 
   return buckets;
+};
+
+// Parses a single CSV line, correctly handling quoted values that may contain commas.
+// e.g. `"Food, groceries","expense"` → ["Food, groceries", "expense"]
+const parseCSVLine = (line: string): string[] => {
+  const values: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      // Two consecutive quotes inside a quoted field = escaped quote character
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      values.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  values.push(current.trim());
+  return values;
+};
+
+// Parses CSV text (exported by this app or matching the same column order)
+// into valid TransactionInput objects, plus a list of human-readable error strings.
+// Expected columns: Date, Type, Category, Description, Amount
+export const parseCSVToTransactions = (
+  csvText: string,
+): { valid: TransactionInput[]; errors: string[] } => {
+  const lines = csvText.trim().split(/\r?\n/);
+
+  if (lines.length < 2) {
+    return { valid: [], errors: ["File is empty or has no data rows."] };
+  }
+
+  // Skip the header row (index 0)
+  const dataLines = lines.slice(1);
+  const valid: TransactionInput[] = [];
+  const errors: string[] = [];
+
+  for (let i = 0; i < dataLines.length; i++) {
+    const line = dataLines[i].trim();
+    if (!line) continue; // skip blank lines
+
+    const values = parseCSVLine(line);
+
+    if (values.length < 5) {
+      errors.push(`Row ${i + 2}: needs 5 columns (Date, Type, Category, Description, Amount).`);
+      continue;
+    }
+
+    const [date, type, category, description, amountStr] = values;
+
+    if (type !== "income" && type !== "expense") {
+      errors.push(`Row ${i + 2}: type must be "income" or "expense", got "${type}".`);
+      continue;
+    }
+
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      errors.push(`Row ${i + 2}: invalid amount "${amountStr}".`);
+      continue;
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      errors.push(`Row ${i + 2}: invalid date "${date}".`);
+      continue;
+    }
+
+    valid.push({ date, type, category, description: description ?? "", amount });
+  }
+
+  return { valid, errors };
 };
 
 export const exportTransactionsToCSV = (transactions: Transaction[]) => {
