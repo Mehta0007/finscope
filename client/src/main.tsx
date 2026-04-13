@@ -5,24 +5,22 @@ import App from './App.tsx'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/QueryClient.ts'
+import { ToastProvider } from './components/ui/Toast.tsx'
 
-
-const  PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing publishable key")
 }
 
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-  
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      
       <QueryClientProvider client={queryClient}>
-    <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </QueryClientProvider>
-
-  </ClerkProvider>
+    </ClerkProvider>
   </StrictMode>,
 )

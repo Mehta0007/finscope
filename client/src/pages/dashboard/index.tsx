@@ -16,6 +16,7 @@ import {
   getTransactionSummary,
   sortTransactionsByDate,
 } from "@/lib/transactions";
+import { Download } from "lucide-react";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TransactionForm } from "../../components/transactions/TransactionForm";
@@ -67,9 +68,10 @@ export const Dashboard = () => {
                   <button
                     type="button"
                     onClick={() => exportTransactionsToCSV(transactions ?? [])}
-                    className="app-button-secondary rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90"
+                    className="app-button-secondary inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium transition hover:opacity-90"
                   >
-                    Export CSV
+                    <Download className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="hidden sm:inline">Export CSV</span>
                   </button>
                   <div className="app-surface rounded-full border p-1">
                     <UserButton

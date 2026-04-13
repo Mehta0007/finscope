@@ -132,7 +132,10 @@ export const TransactionItem = ({
   }
 
   return (
-    <div className="flex flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 md:flex-row md:items-center md:justify-between">
+    <div
+      className="flex flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5 md:flex-row md:items-center md:justify-between border-l-2 transition-colors"
+      style={{ borderLeftColor: isIncome ? "var(--income-accent)" : "var(--expense-accent)" }}
+    >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium capitalize">
