@@ -112,7 +112,7 @@ export const TransactionItem = ({
               });
               setIsEditing(false);
             }}
-            className="rounded-full border border-white/8 px-3 py-1.5 text-xs font-medium text-white/40 transition hover:border-white/16 hover:text-white"
+            className="app-button-secondary rounded-full border px-3 py-1.5 text-xs font-medium transition hover:opacity-90"
           >
             Cancel
           </button>
@@ -122,7 +122,7 @@ export const TransactionItem = ({
             disabled={
               isUpdating || !draft.amount || !draft.category.trim() || !draft.date
             }
-            className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="app-button-primary rounded-full px-3 py-1.5 text-xs font-medium transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isUpdating ? "Saving..." : "Save"}
           </button>
@@ -138,13 +138,7 @@ export const TransactionItem = ({
           <span className="text-sm font-medium capitalize">
             {category}
           </span>
-          <span
-            className={`rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
-              isIncome
-                ? "bg-white/10 text-white/72"
-                : "app-surface-muted app-text-subtle"
-            }`}
-          >
+          <span className="app-surface-muted app-text-subtle rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em]">
             {type}
           </span>
         </div>

@@ -19,6 +19,7 @@ import {
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TransactionForm } from "../../components/transactions/TransactionForm";
+import { ImportCSVButton } from "@/components/transactions/ImportCSVButton";
 
 export const Dashboard = () => {
   const { user } = useUser();
@@ -62,6 +63,7 @@ export const Dashboard = () => {
 
                 <div className="flex items-center gap-2">
                   <ThemeToggle />
+                  <ImportCSVButton />
                   <button
                     type="button"
                     onClick={() => exportTransactionsToCSV(transactions ?? [])}
